@@ -3,10 +3,6 @@ require './lib/parser'
 require './lib/path_evaluator'
 
 class Server
-
-  def initialize
-  end
-
   def start_server
     server = TCPServer.new(9292)
     parser = Parser.new
@@ -35,8 +31,7 @@ class Server
     host = request_lines[1].split[1]
     port = request_lines[1].split(":")[2]
     accept = request_lines[6].split[1]
-    [
-      "<pre>",
+    ["<pre>",
       "Verb: #{verb_path_and_protocol[0]}",
       "Path: #{verb_path_and_protocol[1]}",
       "Protocol: #{verb_path_and_protocol[2]}",
@@ -44,8 +39,7 @@ class Server
       "Port: #{port}",
       "Orign: #{host}",
       "Accept: #{accept}",
-      "</pre>"
-    ].join("\n")
+      "</pre>"].join("\n")
   end
 
   def path_finder(parser, path_response, request_lines, client, requests)

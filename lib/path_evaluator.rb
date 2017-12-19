@@ -1,5 +1,8 @@
+require './lib/parser.rb'
+
 class PathEvaluator
   attr_reader :hellos
+
   def initialize
     @hellos = -1
   end
@@ -27,6 +30,20 @@ class PathEvaluator
       "#{word.upcase} is not a known word"
     end
   end
+
+  # def start_game(path, verb)
+  #   case verb
+  #   when "POST"
+  #     if path == "/start_game"
+  #       "Good Luck!"
+  #     elsif path == "/game"
+  #       game.new
+  #     end
+  #   when "GET"
+  #     if path == "/game"
+  #     end
+  #   end
+  # end
 
   def argument_raiser(datatype, desiredclass = Integer)
     if datatype.class != desiredclass

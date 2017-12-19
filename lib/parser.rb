@@ -1,4 +1,5 @@
 class Parser
+  attr_reader :path, :verb
 
   def path(request_lines)
     argument_raiser(request_lines)
