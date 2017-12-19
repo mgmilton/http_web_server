@@ -1,14 +1,17 @@
 require 'socket'
+require './lib/parser'
+require './lib/path_evaluator'
 
 class Server
 
   def initialize
-    @requests = 0
-    @hellos = 0
   end
 
   def start_server
     server = TCPServer.new(9292)
+    parser = Parser.new
+    path_response = PathEvaluator.new
+    requests = 0
     loop do
       puts "Ready for a request"
       client = server.accept
@@ -17,10 +20,12 @@ class Server
         request_lines << line.chomp
       end
       puts "Got request:"
-      @requests += 1
       puts request_lines.inspect
-      path_finder(request_lines, client)
-      break if path_finder(request_lines, client) == "shut down server"
+      if path_finder(parser, path_response, request_lines, client, requests) == "shut down server"
+        break
+      else
+        path_finder(parser, path_response, request_lines, client, requests)
+      end
       client.close
     end
   end
@@ -43,27 +48,33 @@ class Server
     ].join("\n")
   end
 
-  def path_finder(request_lines, client)
-    case request_lines[0].split[1]
+  def path_finder(parser, path_response, request_lines, client, requests)
+    case parser.path(request_lines)
     when "/"
-      @requests += 1
+      requests += 1
       client.puts diagnostics(request_lines)
     when "/hello"
-      @requests += 1
-      @hellos += 1
-      response = "Hello, World! (#{@hellos})"
+      requests += 1
+      response = "<pre>" + path_response.hello + "</pre>"
       output = "<html><head></head><body>#{response}</body></html>"
       client.puts diagnostics(request_lines)
       client.puts output
     when "/datetime"
-      @requests += 1
-      response = "#{Time.now.strftime('%I:%M%p on %A, %B %e, %Y')}"
+      requests += 1
+      response = path_response.datetime
+      output = "<html><head></head><body>#{response}</body></html>"
+      client.puts diagnostics(request_lines)
+      client.puts output
+    when "/word_search"
+      requests += 1
+      word = parser.word_finder(request_lines)
+      response = path_response.word_search(word)
       output = "<html><head></head><body>#{response}</body></html>"
       client.puts diagnostics(request_lines)
       client.puts output
     when "/shutdown"
-      @requests +=1
-      response = "Total Requests: #{@requests}"
+      requests +=1
+      response = path_response.shutdown(requests)
       output = "<html><head></head><body>#{response}</body></html>"
       client.puts diagnostics(request_lines)
       client.puts output
