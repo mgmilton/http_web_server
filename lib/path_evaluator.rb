@@ -1,4 +1,5 @@
 class PathEvaluator
+  attr_reader :hellos
   def initialize
     @hellos = -1
   end
@@ -13,10 +14,12 @@ class PathEvaluator
   end
 
   def shutdown(request)
+    argument_raiser(request, Integer)
     "Total requests: #{request}"
   end
 
   def word_search(word)
+    argument_raiser(word, String)
     dictionary = File.read("/usr/share/dict/words").split
     if dictionary.include?(word.downcase)
       "#{word.upcase} is a known word"
@@ -25,10 +28,9 @@ class PathEvaluator
     end
   end
 
-  def game?
+  def argument_raiser(datatype, desiredclass = Integer)
+    if datatype.class != desiredclass
+      raise ArgumentError
+    end
   end
-
-  def start_game?
-  end
-
 end
