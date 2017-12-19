@@ -52,6 +52,7 @@ loop do
   client.puts output
 
   puts ["Wrote this response:", headers, output].join("\n")
+  require 'pry' ; binding.pry
   client.close
   puts "\nResponse complete, exiting."
 end
