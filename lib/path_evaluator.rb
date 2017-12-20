@@ -10,7 +10,7 @@ class PathEvaluator
 
   def hello
     @hellos += 1
-    "Hello, World! (#{@hellos})"
+    "Hello, World! (#{@hellos/2})"
   end
 
   def datetime
