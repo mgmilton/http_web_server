@@ -1,2 +1,3 @@
 require "./lib/server.rb"
-Server.new.start_server
+j = Server.new
+j.start_server

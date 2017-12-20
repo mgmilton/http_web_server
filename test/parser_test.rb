@@ -1,4 +1,4 @@
-require './test/test_helper'
+require './test/helper_test'
 require './lib/parser.rb'
 
 class ParserTest < Minitest::Test

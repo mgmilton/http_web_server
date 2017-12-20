@@ -18,7 +18,12 @@ class Parser
 
   def word_finder(request_lines)
     argument_raiser(request_lines)
-    request_lines[0].split[1].split("?")[1].split("=")[1]
+    request_lines[0].split[1].split("?")[1].split("=")[0]
+  end
+
+  def guess_getter(request_lines)
+    argument_raiser(request_lines)
+    request_lines[0].split[1].split("?")[1].split("=")[0]
   end
 
   def argument_raiser(datatype, desiredclass = Array)

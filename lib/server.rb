@@ -3,6 +3,12 @@ require './lib/parser'
 require './lib/path_evaluator'
 
 class Server
+  attr_reader :requests
+
+  def initialize
+    @output = ""
+  end
+
   def start_server
     server = TCPServer.new(9292)
     parser = Parser.new
@@ -17,6 +23,7 @@ class Server
       end
       puts "Got request:"
       puts request_lines.inspect
+      requests += 1
       if path_finder(parser, path_response, request_lines, client, requests) == "shut down server"
         break
       else
@@ -42,37 +49,62 @@ class Server
       "</pre>"].join("\n")
   end
 
+  def headers
+    headers = ["http/1.1 200 ok",
+              "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+              "server: ruby",
+              "content-type: text/html; charset=iso-8859-1",
+              "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
+  end
+
   def path_finder(parser, path_response, request_lines, client, requests)
     case parser.path(request_lines)
     when "/"
-      requests += 1
-      client.puts diagnostics(request_lines)
+      response = "#{diagnostics(request_lines)}"
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
     when "/hello"
-      requests += 1
       response = "<pre>" + path_response.hello + "</pre>"
-      output = "<html><head></head><body>#{response}</body></html>"
-      client.puts diagnostics(request_lines)
-      client.puts output
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
     when "/datetime"
-      requests += 1
       response = path_response.datetime
-      output = "<html><head></head><body>#{response}</body></html>"
-      client.puts diagnostics(request_lines)
-      client.puts output
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
     when "/word_search"
-      requests += 1
       word = parser.word_finder(request_lines)
       response = path_response.word_search(word)
-      output = "<html><head></head><body>#{response}</body></html>"
-      client.puts diagnostics(request_lines)
-      client.puts output
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
+    when "/start_game" && parser.verb(request_lines) == "POST"
+      response = path_response.start_game
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
+    when "/game" && parser.verb(request_lines) == "GET"
+      response = path_response.game_status
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
+    when "/game" && parser.verb(request_lines) == "POST"
+      number = parser.number_getter(request_lines)
     when "/shutdown"
-      requests +=1
       response = path_response.shutdown(requests)
-      output = "<html><head></head><body>#{response}</body></html>"
-      client.puts diagnostics(request_lines)
-      client.puts output
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
       "shut down server"
     end
   end
+
+  # def output_formatter(headers, client, response)
+  #   @output = "<html><head></head><body>#{response}</body></html>"
+  #   client.puts headers
+  #   client.puts @output
+  # end
+
 end

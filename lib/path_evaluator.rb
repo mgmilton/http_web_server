@@ -1,10 +1,11 @@
-require './lib/parser.rb'
+require './lib/game'
 
 class PathEvaluator
-  attr_reader :hellos
+  attr_reader :game
 
   def initialize
     @hellos = -1
+    @game = game
   end
 
   def hello
@@ -31,19 +32,18 @@ class PathEvaluator
     end
   end
 
-  # def start_game(path, verb)
-  #   case verb
-  #   when "POST"
-  #     if path == "/start_game"
-  #       "Good Luck!"
-  #     elsif path == "/game"
-  #       game.new
-  #     end
-  #   when "GET"
-  #     if path == "/game"
-  #     end
-  #   end
-  # end
+  def start_game
+    game = Game.new
+    "Good Luck!"
+  end
+
+  def game_status(guess = 0)
+    if game.guesses == 0
+      "You have made #{game.count} guesses. Please POST a guess"
+    else
+      game.hi_low(guess)
+    end
+  end
 
   def argument_raiser(datatype, desiredclass = Integer)
     if datatype.class != desiredclass

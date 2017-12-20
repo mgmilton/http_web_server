@@ -1,5 +1,5 @@
-require './test/test_helper'
-require './lib/path_evaluator.rb'
+require './test/helper_test'
+require './lib/path_evaluator'
 
 class PathEvaluatorTest < Minitest::Test
 
