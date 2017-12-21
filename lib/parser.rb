@@ -15,6 +15,21 @@ class Parser
     request_lines[1].split[1]
   end
 
+  def protocol(request_lines)
+    argument_raiser(request_lines)
+    request_lines[0].split[2]
+  end
+
+  def port(request_lines)
+    argument_raiser(request_lines)
+    request_lines[1].split(":")[2]
+  end
+
+  def accept(request_lines)
+    argument_raiser(request_lines)
+    request_lines[6].split[1]
+  end
+
   def word_finder(request_lines)
     argument_raiser(request_lines)
     request_lines[0].split[1].split("?")[1].split("=")[0]

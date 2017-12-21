@@ -1,7 +1,7 @@
 require './lib/game'
 
-class PathEvaluator
-  attr_reader :game
+class Response
+  attr_reader :game, :hellos
 
   def initialize
     @hellos = -1
@@ -35,11 +35,6 @@ class PathEvaluator
   def start_game
     @game = Game.new
     "Good Luck!"
-  end
-
-  def game_status(guess, game = @game)
-    argument_raiser(guess)
-    game.hi_lo(guess)
   end
 
   def argument_raiser(datatype, desiredclass = Integer)
