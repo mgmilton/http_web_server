@@ -1,6 +1,7 @@
 require 'socket'
 require './lib/parser'
 require './lib/response'
+require './lib/game'
 
 class Server
   attr_reader :requests, :number
@@ -16,13 +17,13 @@ class Server
     requests = 0
     loop do
       client = server.accept
-      parsed_request = store_request(client)
+      request = store_request(client)
       requests += 1
       body = client.read(parser.content_length(request))
-      if path_finder(response, parsed_request, client, requests, body) == "shut down server"
+      if path_finder(parser, response, request, client, requests, body) == "shut down server"
         break
       else
-        path_finder(response, parsed_request, client, requests, body)
+        path_finder(parser, response, request, client, requests, body)
       end
       client.close
     end
@@ -33,22 +34,18 @@ class Server
     while line = client.gets and !line.chomp.empty?
       request_lines << line.chomp
     end
-    parsed_request = parser.formatter(request_lines)
+    request_lines
   end
 
-  def diagnostics(request_lines)
-    verb_path_and_protocol = request_lines[0].split
-    host = request_lines[1].split[1]
-    port = request_lines[1].split(":")[2]
-    accept = request_lines[6].split[1]
+  def diagnostics(parser, request)
     ["<pre>",
-      "Verb: #{verb_path_and_protocol[0]}",
-      "Path: #{verb_path_and_protocol[1]}",
-      "Protocol: #{verb_path_and_protocol[2]}",
-      "Host: #{host}",
-      "Port: #{port}",
-      "Orign: #{host}",
-      "Accept: #{accept}",
+      "Verb: #{parser.verb(request)}",
+      "Path: #{parser.path(request)}",
+      "Protocol: #{parser.protocol(request)}",
+      "Host: #{parser.host(request)}",
+      "Port: #{parser.port(request)}",
+      "Orign: #{parser.host(request)}",
+      "Accept: #{parser.accept(request)}",
       "</pre>"].join("\n")
   end
 
@@ -72,7 +69,7 @@ class Server
     path = parser.path(request)
     verb = parser.verb(request)
     if path == "/" && verb == "GET"
-      web_response = "#{diagnostics(request_lines)}"
+      web_response = "#{diagnostics(parser, request)}"
       @output = "<html><head></head><body>#{web_response}</body></html>"
       client.puts headers
       client.puts @output
@@ -98,16 +95,13 @@ class Server
       client.puts headers
       client.puts @output
     elsif path == "/game" && verb == "GET"
-      web_response = response.game_status(parser.guess_getter(number))
+      web_response = response.game.hi_low(response.game.current_guess)
       @output = "<html><head></head><body>#{web_response}</body></html>"
       client.puts headers
       client.puts @output
     elsif path == "/game" && verb == "POST"
-      web_response = response.game_status(parser.guess_getter(body))
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
-      #client.puts redirect
+      response.game.store_guess(parser.guess_getter(body))
+      client.puts redirect
     elsif path == "/shutdown"
       web_response = response.shutdown(requests)
       @output = "<html><head></head><body>#{web_response}</body></html>"
