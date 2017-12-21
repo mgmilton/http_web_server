@@ -10,10 +10,7 @@ class ServerTest < Minitest::Test
   end
 
   def test_server_generates_response
-    skip
-    server = Server.new
-    server.start_server
-    response = test.get '/'
-    assert equal '', response.body
+    response = Faraday.get "http://127.0.0.1:9292/"
+    assert_equal '', response
   end
 end

@@ -27,7 +27,10 @@ class Parser
 
   def accept(request_lines)
     argument_raiser(request_lines)
-    request_lines[6].split[1]
+    accept_line = request_lines.find do |line|
+      line.include?("Accept:")
+    end.split[1]
+    accept_line
   end
 
   def word_finder(request_lines)
