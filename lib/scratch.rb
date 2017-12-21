@@ -48,3 +48,8 @@ def path_finder(verb, path, response, request, client, requests, body)
     "shut down server"
   end
 end
+
+
+def response_formatter(path, verb)
+  if path == "/" & verb == "GET"
+    response.hello

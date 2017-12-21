@@ -1,10 +1,8 @@
 require 'socket'
 require './lib/parser'
 require './lib/response'
-require './lib/game'
 
 class Server
-  attr_reader :requests, :number
 
   def initialize
     @output = ""
@@ -20,10 +18,10 @@ class Server
       request = store_request(client)
       requests += 1
       body = client.read(parser.content_length(request))
-      if path_finder(parser, response, request, client, requests, body) == "shut down server"
+      if web_responder(parser, response, request, client, requests, body) == "shut down server"
         break
       else
-        path_finder(parser, response, request, client, requests, body)
+        web_responder(parser, response, request, client, requests, body)
       end
       client.close
     end
@@ -65,50 +63,45 @@ class Server
                 "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
   end
 
-  def path_finder(parser, response, request, client, requests, body)
+  def web_responder(parser, response, request, client, requests, body)
     path = parser.path(request)
     verb = parser.verb(request)
     if path == "/" && verb == "GET"
       web_response = "#{diagnostics(parser, request)}"
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
+      output_formatter(client, web_response)
     elsif path == "/hello" && verb == "GET"
       web_response = "<pre>" + response.hello + "</pre>"
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
+      output_formatter(client, web_response)
     elsif path == "/datetime" && verb == "GET"
       web_response = response.datetime
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
+      output_formatter(client, web_response)
     elsif path == "/word_search" && verb == "GET"
-      word = parser.word_finder(request_lines)
-      web_response = response.word_search(word)
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
+      web_response = response.word_search(parser.word_finder(request))
+      output_formatter(client, web_response)
     elsif path == "/start_game" && verb == "POST"
       web_response = response.start_game
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
+      output_formatter(client, web_response)
     elsif path == "/game" && verb == "GET"
       web_response = response.game.hi_low(response.game.current_guess)
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
+      output_formatter(client, web_response)
     elsif path == "/game" && verb == "POST"
       response.game.store_guess(parser.guess_getter(body))
       client.puts redirect
     elsif path == "/shutdown"
       web_response = response.shutdown(requests)
-      @output = "<html><head></head><body>#{web_response}</body></html>"
-      client.puts headers
-      client.puts @output
-      "shut down server"
+      output_formatter(client, web_response)
+      shut_down
     end
+  end
+
+  def shut_down
+    "shut down server"
+  end
+
+  def output_formatter(client, web_response)
+    @output = "<html><head></head><body>#{web_response}</body></html>"
+    client.puts headers
+    client.puts @output
   end
 
 end

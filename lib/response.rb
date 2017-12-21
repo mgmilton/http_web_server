@@ -1,7 +1,7 @@
 require './lib/game'
 
 class Response
-  attr_reader :game
+  attr_reader :game, :hellos
 
   def initialize
     @hellos = -1
@@ -35,11 +35,6 @@ class Response
   def start_game
     @game = Game.new
     "Good Luck!"
-  end
-
-  def game_status(guess, game = @game)
-    argument_raiser(guess)
-    game.hi_low(guess)
   end
 
   def argument_raiser(datatype, desiredclass = Integer)

@@ -47,58 +47,69 @@ class ResponseTest < Minitest::Test
 
   def test_shutdown_returns_string_with_total_requests
     response = Response.new
-    assert_equal "Total requests: 3", Response.shutdown(3)
+    assert_equal "Total requests: 3", response.shutdown(3)
   end
 
   def test_word_search_raises_argument_when_passed_a_float
-    response = response.new
+    response = Response.new
     assert_raises ArgumentError do
       response.word_search(0.2)
     end
   end
 
   def test_word_search_raises_argument_when_passed_an_array
-    response = response.new
+    response = Response.new
     assert_raises ArgumentError do
       response.word_search([0.2])
     end
   end
 
   def test_word_search_raises_argument_when_passed_an_integer
-    response = response.new
+    response = Response.new
     assert_raises ArgumentError do
       response.word_search(2)
     end
   end
 
   def test_word_search_returns_string_stating_word_is_in_dictionary
-    response = response.new
+    response = Response.new
     assert_equal "ORANGUTAN is a known word", response.word_search("orangutan")
   end
 
   def test_word_search_returns_string_stating_word_is_not_in_dictionary
-    response = response.new
+    response = Response.new
     assert_equal "HOOP-DEE is not a known word", response.word_search("hoop-dee")
   end
 
   def test_argument_raiser_raises_argument_when_passed_a_float
-    response = response.new
+    response = Response.new
     assert_raises ArgumentError do
       response.argument_raiser(0.2)
     end
   end
 
   def test_argument_raiser_raises_argument_when_passed_a_string
-    response = response.new
+    response = Response.new
     assert_raises ArgumentError do
       response.argument_raiser('s')
     end
   end
 
   def test_argument_raiser_raises_argument_when_passed_an_array
-    response = response.new
+    response = Response.new
     assert_raises ArgumentError do
       response.argument_raiser(['ad'])
     end
+  end
+
+  def test_start_game_returns_good_luck
+    response = Response.new
+    assert_equal "Good Luck!", response.start_game
+  end
+
+  def test_start_game_instantiates_a_game
+    response = Response.new
+    response.start_game
+    assert_instance_of Game, response.game
   end
 end
