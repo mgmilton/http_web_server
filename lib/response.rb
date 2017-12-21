@@ -1,6 +1,6 @@
 require './lib/game'
 
-class PathEvaluator
+class Response
   attr_reader :game
 
   def initialize
@@ -39,7 +39,7 @@ class PathEvaluator
 
   def game_status(guess, game = @game)
     argument_raiser(guess)
-    game.hi_lo(guess)
+    game.hi_low(guess)
   end
 
   def argument_raiser(datatype, desiredclass = Integer)

@@ -7,16 +7,17 @@ class Game
     @guesses = 0
   end
 
-  def hi_lo(guess)
+  def hi_low(guess)
     @guesses += 1
     case
     when guess < @number
-      "Your most recent guess #{guess} was too low. You've made #{@guesses/2 + 1} guesses."
+      "Your #{@number} most recent guess #{guess} was too low. You've made #{@guesses/2 + 1} guesses."
     when guess > @number
       "Your most recent guess #{guess} was too high. You've made #{@guesses/2 + 1} guesses."
     when guess == @number
       "Correct!"
     end
   end
+
 
 end
