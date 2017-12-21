@@ -18,7 +18,7 @@ class PathEvaluator
   end
 
   def shutdown(request)
-    argument_raiser(request, Integer)
+    argument_raiser(request)
     "Total requests: #{request}"
   end
 
@@ -33,16 +33,13 @@ class PathEvaluator
   end
 
   def start_game
-    game = Game.new
+    @game = Game.new
     "Good Luck!"
   end
 
-  def game_status(guess = 0)
-    if game.guesses == 0
-      "You have made #{game.count} guesses. Please POST a guess"
-    else
-      game.hi_low(guess)
-    end
+  def game_status(guess, game = @game)
+    argument_raiser(guess)
+    game.hi_lo(guess)
   end
 
   def argument_raiser(datatype, desiredclass = Integer)

@@ -1,5 +1,4 @@
 class Parser
-  attr_reader :path, :verb
 
   def path(request_lines)
     argument_raiser(request_lines)
@@ -21,9 +20,13 @@ class Parser
     request_lines[0].split[1].split("?")[1].split("=")[0]
   end
 
-  def guess_getter(request_lines)
+  def content_length(request_lines)
     argument_raiser(request_lines)
-    request_lines[0].split[1].split("?")[1].split("=")[0]
+    request_lines[3].split(": ")[1].to_i
+  end
+
+  def guess_getter(body)
+    body.split[4].to_i
   end
 
   def argument_raiser(datatype, desiredclass = Array)

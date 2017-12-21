@@ -24,10 +24,11 @@ class Server
       puts "Got request:"
       puts request_lines.inspect
       requests += 1
-      if path_finder(parser, path_response, request_lines, client, requests) == "shut down server"
+      body = client.read(parser.content_length(request_lines))
+      if path_finder(parser, path_response, request_lines, client, requests, body) == "shut down server"
         break
       else
-        path_finder(parser, path_response, request_lines, client, requests)
+        path_finder(parser, path_response, request_lines, client, requests, body)
       end
       client.close
     end
@@ -50,49 +51,53 @@ class Server
   end
 
   def headers
-    headers = ["http/1.1 200 ok",
-              "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-              "server: ruby",
-              "content-type: text/html; charset=iso-8859-1",
-              "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
+      headers = ["http/1.1 200 ok",
+                "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+                "server: ruby",
+                "content-type: text/html; charset=iso-8859-1",
+                "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
   end
 
-  def path_finder(parser, path_response, request_lines, client, requests)
-    case parser.path(request_lines)
-    when "/"
+  def path_finder(parser, path_response, request_lines, client, requests, body)
+    path = parser.path(request_lines)
+    verb = parser.verb(request_lines)
+    if path == "/" && verb == "GET"
       response = "#{diagnostics(request_lines)}"
       @output = "<html><head></head><body>#{response}</body></html>"
       client.puts headers
       client.puts @output
-    when "/hello"
+    elsif path == "/hello" && verb == "GET"
       response = "<pre>" + path_response.hello + "</pre>"
       @output = "<html><head></head><body>#{response}</body></html>"
       client.puts headers
       client.puts @output
-    when "/datetime"
+    elsif path == "/datetime" && verb == "GET"
       response = path_response.datetime
       @output = "<html><head></head><body>#{response}</body></html>"
       client.puts headers
       client.puts @output
-    when "/word_search"
+    elsif path == "/word_search" && verb == "GET"
       word = parser.word_finder(request_lines)
       response = path_response.word_search(word)
       @output = "<html><head></head><body>#{response}</body></html>"
       client.puts headers
       client.puts @output
-    when "/start_game" && parser.verb(request_lines) == "POST"
+    elsif path == "/start_game" && verb == "POST"
       response = path_response.start_game
       @output = "<html><head></head><body>#{response}</body></html>"
       client.puts headers
       client.puts @output
-    when "/game" && parser.verb(request_lines) == "GET"
-      response = path_response.game_status
+    elsif path == "/game" && verb == "GET"
+      response = path_response.game_status(parser.guess_getter(body))
       @output = "<html><head></head><body>#{response}</body></html>"
       client.puts headers
       client.puts @output
-    when "/game" && parser.verb(request_lines) == "POST"
-      number = parser.number_getter(request_lines)
-    when "/shutdown"
+    elsif path == "/game" && verb == "POST"
+      response = path_response.game_status(parser.guess_getter(body))
+      @output = "<html><head></head><body>#{response}</body></html>"
+      client.puts headers
+      client.puts @output
+    elsif path == "/shutdown"
       response = path_response.shutdown(requests)
       @output = "<html><head></head><body>#{response}</body></html>"
       client.puts headers

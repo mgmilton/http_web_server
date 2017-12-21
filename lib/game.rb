@@ -11,9 +11,9 @@ class Game
     @guesses += 1
     case
     when guess < @number
-      "Your most recent #{guess} was too low. You've made #{@guesses} guesses."
+      "Your most recent guess #{guess} was too low. You've made #{@guesses/2 + 1} guesses."
     when guess > @number
-      "Your most recent #{guess} was too high. You've made #{@guesses} guesses."
+      "Your most recent guess #{guess} was too high. You've made #{@guesses/2 + 1} guesses."
     when guess == @number
       "Correct!"
     end
