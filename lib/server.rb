@@ -89,8 +89,7 @@ class Server
     elsif path == "/start_game" && verb == "POST"
       if response.game.nil?
         web_response = response.start_game
-        #client.puts redirect(301)
-        output_formatter(client, web_response, 200)
+        output_formatter(client, web_response, 301)
       else
         output_formatter(client, CODES[403], 403)
       end

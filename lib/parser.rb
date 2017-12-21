@@ -44,6 +44,7 @@ class Parser
   end
 
   def guess_getter(body)
+    argument_raiser(body, String)
     body.split[4].to_i
   end
 
