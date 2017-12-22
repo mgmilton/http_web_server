@@ -28,7 +28,6 @@ class Server
       puts "Ready for request:"
       @client = server.accept
       request = store_request(client)
-      # require 'pry' ; binding.pry
       requests += 1
       body = client.read(parser.content_length(request))
       if web_responder(parser, response, request, client, requests, body) == "shut down server"
