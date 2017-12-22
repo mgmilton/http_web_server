@@ -33,6 +33,8 @@ class GameTest < Minitest::Test
     game = Game.new
     game.store_guess(-1)
     assert_equal "Your most recent guess -1 was too low. You've made 1 guesses.", game.hi_low(-1)
+    game.store_guess(101)
+    assert_equal "Your most recent guess 101 was too high. You've made 1 guesses.", game.hi_low(101)
   end
 
 
@@ -43,5 +45,15 @@ class GameTest < Minitest::Test
     end
   end
 
+  def test_argument_raiser_defaults_arguments_to_integers
+    game = Game.new
+    assert_raises ArgumentError do
+      game.argument_raiser(['ad'])
+    end
+
+    assert_raises ArgumentError do
+      game.argument_raiser(0.3)
+    end
+  end
 
 end

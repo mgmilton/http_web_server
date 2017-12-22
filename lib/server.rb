@@ -3,6 +3,7 @@ require './lib/parser'
 require './lib/response'
 
 class Server
+  attr_reader :client
 
   def initialize
     @output = ""
@@ -16,14 +17,18 @@ class Server
     500 => "HTTP/1.1 500 Internal Server Error"
   }
 
+  SystemError = "You broke the internet!"
+
   def start_server
     server = TCPServer.new(9292)
     parser = Parser.new
     response = Response.new
     requests = 0
     loop do
-      client = server.accept
+      puts "Ready for request:"
+      @client = server.accept
       request = store_request(client)
+      # require 'pry' ; binding.pry
       requests += 1
       body = client.read(parser.content_length(request))
       if web_responder(parser, response, request, client, requests, body) == "shut down server"
@@ -87,17 +92,12 @@ class Server
       web_response = response.word_search(parser.word_finder(request))
       output_formatter(client, web_response, 200)
     elsif path == "/start_game" && verb == "POST"
-      if response.game.nil?
-        web_response = response.start_game
-        output_formatter(client, web_response, 301)
-      else
-        output_formatter(client, CODES[403], 403)
-      end
+      game_checker(response, client)
     elsif path == "/game" && verb == "GET"
       web_response = response.game.hi_low(response.game.current_guess)
       output_formatter(client, web_response, 200)
     elsif path == "/game" && verb == "POST"
-      response.game.store_guess(parser.guess_getter(body))
+      guess_poster(response, parser, body)
       client.puts redirect(301)
     elsif path == "/shutdown"
       web_response = response.shutdown(requests)
@@ -105,9 +105,23 @@ class Server
       shut_down
     elsif path == '/force_error'
       output_formatter(client, CODES[500], 500)
+      raise SystemError
     else
       output_formatter(client, CODES[404], 404)
     end
+  end
+
+  def game_checker(response, client)
+    if response.game.nil?
+      web_response = response.start_game
+      output_formatter(client, web_response, 301)
+    else
+      output_formatter(client, CODES[403], 403)
+    end
+  end
+
+  def guess_poster(response, parser, body)
+    response.game.store_guess(parser.guess_getter(body))
   end
 
   def shut_down
