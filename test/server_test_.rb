@@ -1,5 +1,6 @@
 require './test/helper_test'
 require './lib/server'
+require './lib/game'
 require 'faraday'
 
 class ServerTest < Minitest::Test
@@ -57,6 +58,11 @@ class ServerTest < Minitest::Test
     word = Faraday.get "http://127.0.0.1:9292/word_search?word=dssm"
 
     assert_equal "<html><head></head><body>DSSM is not a known word</body></html>", word.body
+  end
+
+  def test_guess_getter_returns_number_of_guesses
+    response = Faraday.post "http://127.0.0.1:9292/start_game"
+    assert_equal 0, @parser.guess_getter(response.body)
   end
 
   def test_web_responder_post_start_game_sends_a_redirect
