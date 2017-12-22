@@ -83,7 +83,7 @@ class ParserTest < Minitest::Test
 
   def test_word_finder_splits_by_question_mark_and_equal_returns_first_element
     parse = Parser.new
-    assert_equal 'fast', parse.word_finder(["path/ path?fast=parasdfda"])
+    assert_equal 'fast', parse.word_finder(["path/ path?word=fast"])
   end
 
   def test_protocol_splits_first_element_by_second_space

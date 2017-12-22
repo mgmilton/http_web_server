@@ -3,8 +3,6 @@ require './lib/parser'
 require './lib/response'
 
 class Server
-  attr_reader :client
-
   def initialize
     @output = ""
   end
@@ -26,7 +24,7 @@ class Server
     requests = 0
     loop do
       puts "Ready for request:"
-      @client = server.accept
+      client = server.accept
       request = store_request(client)
       requests += 1
       body = client.read(parser.content_length(request))
